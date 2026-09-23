@@ -2,7 +2,27 @@
 // CampusFlow Session & RBAC Auth Middleware
 
 if (session_status() === PHP_SESSION_NONE) {
+    // Secure cookie parameters
+    if (PHP_VERSION_ID >= 70300) {
+        session_set_cookie_params([
+            'lifetime' => 0,
+            'path'     => '/',
+            'domain'   => '',
+            'secure'   => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
+    } else {
+        session_set_cookie_params(0, '/; samesite=Lax', '', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on', true);
+    }
     session_start();
+}
+
+// Send HTTP headers to prevent caching of auth-sensitive API responses
+if (!headers_sent()) {
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Pragma: no-cache');
+    header('Expires: 0');
 }
 
 /**
@@ -69,12 +89,25 @@ function requireAuth() {
 }
 
 /**
- * Guard function to require a specific role ('student', 'staff', 'admin').
+ * Helper to check whether user has the required role (string or array of allowed roles).
+ */
+function userHasRole($user, $requiredRole) {
+    if (empty($requiredRole)) {
+        return true;
+    }
+    if (is_array($requiredRole)) {
+        return in_array($user['role'], $requiredRole, true);
+    }
+    return $user['role'] === $requiredRole;
+}
+
+/**
+ * Guard function to require a specific role ('student', 'staff', 'admin' or array).
  * Redirects unauthorized users to their assigned dashboard (or returns 403 JSON for APIs).
  */
 function requireRole($requiredRole) {
     $user = requireLogin();
-    if ($user['role'] !== $requiredRole) {
+    if (!userHasRole($user, $requiredRole)) {
         if (isApiRequest()) {
             http_response_code(403);
             header('Content-Type: application/json');
@@ -98,7 +131,8 @@ function requireRole($requiredRole) {
 }
 
 /**
- * Legacy API helper function for backward compatibility with existing endpoints.
+ * API helper function to enforce authentication and authorization.
+ * Returns 401 if unauthenticated, 403 if unauthorized.
  */
 function checkUser($requiredRole = null) {
     $user = getAuthUser();
@@ -108,7 +142,7 @@ function checkUser($requiredRole = null) {
         echo json_encode(['success' => false, 'error' => 'Please login']);
         exit();
     }
-    if ($requiredRole && $user['role'] !== $requiredRole) {
+    if ($requiredRole && !userHasRole($user, $requiredRole)) {
         http_response_code(403);
         header('Content-Type: application/json');
         echo json_encode(['success' => false, 'error' => 'Access denied']);
@@ -116,3 +150,4 @@ function checkUser($requiredRole = null) {
     }
     return $user;
 }
+
