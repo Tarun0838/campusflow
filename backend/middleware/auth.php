@@ -62,6 +62,13 @@ function requireLogin() {
 }
 
 /**
+ * Alias for requireLogin()
+ */
+function requireAuth() {
+    return requireLogin();
+}
+
+/**
  * Guard function to require a specific role ('student', 'staff', 'admin').
  * Redirects unauthorized users to their assigned dashboard (or returns 403 JSON for APIs).
  */

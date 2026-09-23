@@ -68,6 +68,7 @@ if ($action === 'toggle') {
 }
 
 // 4. List Active Services (for Student)
+checkUser('student');
 $stmt = $pdo->query("
     SELECT s.id, s.name, s.prefix, s.average_time, s.status,
            COUNT(CASE WHEN t.status = 'waiting' THEN 1 END) as waiting_count

@@ -137,7 +137,13 @@ if ($user && password_verify($password, $user['password'])) {
         'success' => true,
         'role'    => $user['role'],
         'name'    => $displayName,
-        'email'   => $user['email']
+        'email'   => $user['email'],
+        'user'    => [
+            'id'    => (int)$user['id'],
+            'name'  => $displayName,
+            'email' => $user['email'],
+            'role'  => $user['role']
+        ]
     ]);
 } else {
     http_response_code(401);
