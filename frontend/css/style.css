@@ -1,0 +1,191 @@
+/* CampusFlow - Clean & Simple College MVP Stylesheet */
+/* 100% Offline, Zero CDNs, Zero External Dependencies */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #f8fafc;
+    color: #0f172a;
+    line-height: 1.5;
+    font-size: 15px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 16px;
+}
+
+/* Navbar */
+.navbar {
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 14px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brand {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+/* Cards */
+.card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+/* Forms */
+.form-group {
+    margin-bottom: 14px;
+}
+
+label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #334155;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    outline: none;
+}
+
+input:focus, select:focus {
+    border-color: #2563eb;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 9px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+}
+
+.btn-primary { background: #2563eb; color: #ffffff; }
+.btn-primary:hover { background: #1d4ed8; }
+
+.btn-secondary { background: #ffffff; color: #334155; border-color: #cbd5e1; }
+.btn-secondary:hover { background: #f1f5f9; }
+
+.btn-success { background: #16a34a; color: #ffffff; }
+.btn-success:hover { background: #15803d; }
+
+.btn-sm { padding: 6px 12px; font-size: 13px; }
+.btn-lg { padding: 12px 24px; font-size: 16px; }
+.btn-block { width: 100%; }
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-waiting { background: #fef3c7; color: #92400e; }
+.badge-called { background: #dbeafe; color: #1e40af; }
+.badge-processing { background: #ede9fe; color: #5b21b6; }
+.badge-completed { background: #dcfce7; color: #166534; }
+.badge-active { background: #dcfce7; color: #166534; }
+.badge-inactive { background: #f1f5f9; color: #64748b; }
+
+/* Grid */
+.grid { display: grid; gap: 16px; }
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+@media (max-width: 768px) {
+    .grid-cols-2, .grid-cols-3, .grid-cols-4 { grid-template-columns: 1fr; }
+}
+
+/* Stat Cards */
+.stat-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+}
+
+.stat-label { font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; }
+.stat-value { font-size: 26px; font-weight: 700; color: #0f172a; margin-top: 4px; }
+
+/* Token Hero */
+.token-box {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 32px 20px;
+    text-align: center;
+    max-width: 440px;
+    margin: 20px auto;
+}
+
+.token-code {
+    font-size: 48px;
+    font-weight: 800;
+    color: #2563eb;
+    margin: 8px 0;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+th, td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+th { background: #f8fafc; color: #475569; font-weight: 600; }
+
+/* Alert */
+.alert {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+.alert-danger { background: #fee2e2; color: #991b1b; }
+.alert-success { background: #dcfce7; color: #166534; }
+.alert-warning { background: #fef3c7; color: #92400e; }
