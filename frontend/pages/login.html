@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - CampusFlow</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body style="display:flex; justify-content:center; align-items:center; min-height:100vh; padding:20px;">
+
+    <div class="card" style="width:100%; max-width:400px; padding:32px 28px;">
+        <div style="text-align:center; margin-bottom:24px;">
+            <h1 style="font-size:24px; color:#0f172a; margin-bottom:4px;">CampusFlow</h1>
+            <p style="color:#64748b; font-size:14px;">Smart College Service Queue</p>
+        </div>
+
+        <div id="alert" class="alert" style="display:none;"></div>
+
+        <form onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="name@college.edu" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:10px;">Login</button>
+        </form>
+
+        <!-- Quick Demo Credentials -->
+        <div style="margin-top:24px; padding-top:16px; border-top:1px solid #e2e8f0;">
+            <div style="font-size:12px; font-weight:700; color:#64748b; margin-bottom:8px;">DEMO QUICK-FILL:</div>
+            <div style="display:flex; gap:6px;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="quickFill('student@campusflow.local', 'student123')">Student</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="quickFill('staff@campusflow.local', 'staff123')">Staff</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="quickFill('admin@campusflow.local', 'admin123')">Admin</button>
+            </div>
+        </div>
+    </div>
+
+<script src="../js/app.js"></script>
+</body>
+</html>

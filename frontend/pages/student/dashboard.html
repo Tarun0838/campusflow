@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - CampusFlow</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="navbar">
+    <a href="dashboard.html" class="brand">🎓 CampusFlow</a>
+    <div class="nav-links">
+        <span>Hi, <strong id="userName">Student</strong></span>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
+    </div>
+</header>
+
+<main class="container">
+    <h1 style="font-size:22px; margin-bottom:18px;">Student Dashboard</h1>
+
+    <div id="alert" class="alert" style="display:none;"></div>
+
+    <!-- Active Token -->
+    <h2 style="font-size:16px; margin-bottom:10px;">My Active Token</h2>
+    <div id="activeTokenBox" style="margin-bottom:28px;">
+        <div class="card" style="color:#64748b;">Loading token...</div>
+    </div>
+
+    <!-- Available Services -->
+    <h2 style="font-size:16px; margin-bottom:10px;">Available Services</h2>
+    <div class="grid grid-cols-3" id="servicesList">
+        <!-- Populated via app.js -->
+    </div>
+</main>
+
+<script src="../../js/app.js"></script>
+<script>
+    loadStudentDashboard();
+</script>
+</body>
+</html>

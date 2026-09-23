@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard - CampusFlow</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="navbar">
+    <a href="dashboard.html" class="brand">🎓 CampusFlow</a>
+    <div class="nav-links">
+        <span>Hi, <strong id="userName">Staff</strong></span>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
+    </div>
+</header>
+
+<main class="container">
+    <div style="margin-bottom:20px;">
+        <h1 style="font-size:22px; margin-bottom:4px;">Staff Counter</h1>
+        <p style="color:#64748b; font-size:14px;">Managing: <strong id="serviceTitle">All Active Services</strong></p>
+    </div>
+
+    <div id="alert" class="alert" style="display:none;"></div>
+
+    <div class="grid grid-cols-2">
+        <!-- Current Token -->
+        <div class="card">
+            <h2 style="font-size:16px; margin-bottom:14px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">Current Token</h2>
+            <div id="currentTokenBox">
+                <!-- Populated via app.js -->
+            </div>
+        </div>
+
+        <!-- Waiting Queue -->
+        <div class="card">
+            <h2 style="font-size:16px; margin-bottom:14px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">Waiting Queue</h2>
+            <div id="queueList">
+                <!-- Populated via app.js -->
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="../../js/app.js"></script>
+<script>
+    loadStaffDashboard();
+</script>
+</body>
+</html>

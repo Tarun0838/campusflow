@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - CampusFlow</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="navbar">
+    <a href="dashboard.html" class="brand">🎓 CampusFlow</a>
+    <div class="nav-links">
+        <span>Hi, <strong id="userName">Admin</strong></span>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
+    </div>
+</header>
+
+<main class="container">
+    <h1 style="font-size:22px; margin-bottom:18px;">Admin Dashboard</h1>
+
+    <!-- 4 Numbers -->
+    <div class="grid grid-cols-4" style="margin-bottom:24px;">
+        <div class="stat-card">
+            <div class="stat-label">Total Today</div>
+            <div class="stat-value" id="statTotal">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Waiting</div>
+            <div class="stat-value" id="statWaiting" style="color:#d97706;">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Completed</div>
+            <div class="stat-value" id="statCompleted" style="color:#16a34a;">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Active Services</div>
+            <div class="stat-value" id="statActive" style="color:#2563eb;">0</div>
+        </div>
+    </div>
+
+    <!-- Manage Services -->
+    <div class="grid grid-cols-3">
+        <!-- Add Service Form -->
+        <div class="card" style="align-self:start;">
+            <h2 style="font-size:16px; margin-bottom:14px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">Add Service</h2>
+            <form id="addForm" onsubmit="addService(event)">
+                <div class="form-group">
+                    <label for="service_name">Service Name</label>
+                    <input type="text" id="service_name" placeholder="e.g. Sports Cell" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="prefix">Prefix</label>
+                    <input type="text" id="prefix" placeholder="e.g. SP" maxlength="4" style="text-transform:uppercase;" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="average_time">Average Time (min)</label>
+                    <input type="number" id="average_time" value="5" min="1" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Add Service</button>
+            </form>
+        </div>
+
+        <!-- Services List -->
+        <div class="card" style="grid-column: span 2; padding:0; overflow:hidden;">
+            <div style="padding:14px 18px; border-bottom:1px solid #e2e8f0;">
+                <h2 style="font-size:16px;">College Services</h2>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Prefix</th>
+                        <th>Service</th>
+                        <th>Avg. Time</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="servicesTable">
+                    <!-- Populated via app.js -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<script src="../../js/app.js"></script>
+<script>
+    loadAdminDashboard();
+</script>
+</body>
+</html>
