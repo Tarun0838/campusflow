@@ -25,17 +25,33 @@
             <div class="stat-label">Total Today</div>
             <div class="stat-value" id="statTotal">0</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card clickable" id="cardWaiting" onclick="toggleAdminTokenList('waiting')" title="Click to view waiting tokens">
             <div class="stat-label">Waiting</div>
             <div class="stat-value" id="statWaiting" style="color:#d97706;">0</div>
+            <div style="font-size:11px; color:#94a3b8; margin-top:4px;">Click to view &darr;</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card clickable" id="cardCompleted" onclick="toggleAdminTokenList('completed')" title="Click to view completed tokens">
             <div class="stat-label">Completed</div>
             <div class="stat-value" id="statCompleted" style="color:#16a34a;">0</div>
+            <div style="font-size:11px; color:#94a3b8; margin-top:4px;">Click to view &darr;</div>
         </div>
         <div class="stat-card">
             <div class="stat-label">Active Services</div>
             <div class="stat-value" id="statActive" style="color:#2563eb;">0</div>
+        </div>
+    </div>
+
+    <!-- Expandable Token List Section (Waiting or Completed) -->
+    <div id="adminTokenSection" class="card" style="display:none; margin-bottom:24px; padding:0; overflow:hidden;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid #e2e8f0; background:#f8fafc;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <h2 id="adminTokenTitle" style="font-size:16px;">Waiting Tokens</h2>
+                <span id="adminTokenBadge" class="badge badge-waiting">0</span>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="closeAdminTokenList()">Close &times;</button>
+        </div>
+        <div id="adminTokenContent">
+            <!-- Populated via app.js -->
         </div>
     </div>
 
@@ -75,6 +91,7 @@
                         <th>Prefix</th>
                         <th>Service</th>
                         <th>Avg. Time</th>
+                        <th>Queue</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>

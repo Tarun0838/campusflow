@@ -235,6 +235,46 @@ if ($action === 'complete') {
     exit();
 }
 
+// -------------------------------------------------------------
+// ADMIN ACTIONS
+// -------------------------------------------------------------
+
+// 7. Admin View Tokens List (Waiting or Completed)
+if ($action === 'admin_tokens') {
+    checkUser('admin');
+    $type = $_GET['type'] ?? ($input['type'] ?? 'waiting');
+
+    if ($type === 'completed') {
+        $stmt = $pdo->query("
+            SELECT t.id, t.token_code, u.name as student_name, s.name as service_name, t.status,
+                   DATE_FORMAT(t.created_at, '%h:%i %p') as created_time
+            FROM tokens t
+            JOIN users u ON t.student_id = u.id
+            JOIN services s ON t.service_id = s.id
+            WHERE t.status = 'completed' AND DATE(t.created_at) = CURDATE()
+            ORDER BY t.id DESC
+        ");
+    } else {
+        $stmt = $pdo->query("
+            SELECT t.id, t.token_code, u.name as student_name, s.name as service_name, t.status,
+                   DATE_FORMAT(t.created_at, '%h:%i %p') as created_time
+            FROM tokens t
+            JOIN users u ON t.student_id = u.id
+            JOIN services s ON t.service_id = s.id
+            WHERE t.status = 'waiting'
+            ORDER BY t.id ASC
+        ");
+    }
+    $tokens = $stmt->fetchAll();
+
+    echo json_encode([
+        'success' => true,
+        'type'    => $type,
+        'tokens'  => $tokens
+    ]);
+    exit();
+}
+
 http_response_code(400);
 echo json_encode(['success' => false, 'error' => 'Invalid action']);
 

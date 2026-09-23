@@ -13,7 +13,16 @@ if ($action === 'stats') {
     $waiting = $pdo->query("SELECT COUNT(*) FROM tokens WHERE status = 'waiting'")->fetchColumn();
     $completed = $pdo->query("SELECT COUNT(*) FROM tokens WHERE status = 'completed' AND DATE(created_at) = CURDATE()")->fetchColumn();
     $active = $pdo->query("SELECT COUNT(*) FROM services WHERE status = 'active'")->fetchColumn();
-    $services = $pdo->query("SELECT * FROM services ORDER BY id ASC")->fetchAll();
+    
+    // Service-wise queue information
+    $services = $pdo->query("
+        SELECT s.id, s.name, s.prefix, s.average_time, s.status,
+               COUNT(CASE WHEN t.status = 'waiting' THEN 1 END) as waiting_count
+        FROM services s
+        LEFT JOIN tokens t ON s.id = t.service_id
+        GROUP BY s.id
+        ORDER BY s.id ASC
+    ")->fetchAll();
 
     echo json_encode([
         'success'         => true,

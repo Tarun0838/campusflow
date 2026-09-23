@@ -344,6 +344,8 @@ function staffAction(action, tokenId = 0) {
 }
 
 // 4. ADMIN WORKFLOW
+let currentAdminTokenType = null;
+
 function loadAdminDashboard() {
     checkUser('admin');
 
@@ -364,6 +366,7 @@ function loadAdminDashboard() {
                         <td><strong>${s.prefix}</strong></td>
                         <td>${s.name}</td>
                         <td>${s.average_time} min</td>
+                        <td><span class="badge badge-waiting">${s.waiting_count !== undefined ? s.waiting_count : 0}</span></td>
                         <td><span class="badge badge-${s.status === 'active' ? 'active' : 'inactive'}">${s.status.toUpperCase()}</span></td>
                         <td>
                             <button type="button" class="btn btn-secondary btn-sm" onclick="toggleService(${s.id}, '${s.status}')">
@@ -373,8 +376,127 @@ function loadAdminDashboard() {
                     </tr>
                 `).join('');
             }
+
+            // If an admin token list is currently open, refresh it with updated data
+            if (currentAdminTokenType) {
+                showAdminTokenList(currentAdminTokenType, false);
+            }
         });
 }
+
+function toggleAdminTokenList(type) {
+    if (currentAdminTokenType === type) {
+        closeAdminTokenList();
+    } else {
+        showAdminTokenList(type, true);
+    }
+}
+
+function closeAdminTokenList() {
+    currentAdminTokenType = null;
+    const sec = document.getElementById('adminTokenSection');
+    if (sec) sec.style.display = 'none';
+
+    const cardW = document.getElementById('cardWaiting');
+    const cardC = document.getElementById('cardCompleted');
+    if (cardW) cardW.classList.remove('active');
+    if (cardC) cardC.classList.remove('active');
+}
+
+function showAdminTokenList(type, setSectionVisible = true) {
+    currentAdminTokenType = type;
+
+    const sec = document.getElementById('adminTokenSection');
+    const title = document.getElementById('adminTokenTitle');
+    const badge = document.getElementById('adminTokenBadge');
+    const content = document.getElementById('adminTokenContent');
+    const cardW = document.getElementById('cardWaiting');
+    const cardC = document.getElementById('cardCompleted');
+
+    if (cardW && cardC) {
+        cardW.classList.toggle('active', type === 'waiting');
+        cardC.classList.toggle('active', type === 'completed');
+    }
+
+    if (title) title.textContent = (type === 'waiting') ? 'Currently Waiting Tokens' : "Today's Completed Tokens";
+    if (badge) {
+        badge.className = 'badge badge-' + (type === 'waiting' ? 'waiting' : 'completed');
+        badge.textContent = '...';
+    }
+
+    if (setSectionVisible && sec) sec.style.display = 'block';
+
+    fetch(getApiUrl(`tokens.php?action=admin_tokens&type=${type}`))
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) return;
+            const tokens = data.tokens || [];
+            if (badge) badge.textContent = tokens.length;
+
+            if (!content) return;
+
+            if (tokens.length === 0) {
+                content.innerHTML = `
+                    <div style="padding:24px; text-align:center; color:#64748b;">
+                        ${type === 'waiting' ? 'No students are currently waiting in queue.' : 'No tokens have been completed today.'}
+                    </div>
+                `;
+                return;
+            }
+
+            if (type === 'waiting') {
+                content.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Token</th>
+                                <th>Student</th>
+                                <th>Service</th>
+                                <th>Created Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tokens.map(t => `
+                                <tr>
+                                    <td><strong style="color:#2563eb;">${t.token_code}</strong></td>
+                                    <td>${t.student_name}</td>
+                                    <td>${t.service_name}</td>
+                                    <td>${t.created_time || ''}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } else {
+                content.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Token</th>
+                                <th>Student</th>
+                                <th>Service</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tokens.map(t => `
+                                <tr>
+                                    <td><strong style="color:#2563eb;">${t.token_code}</strong></td>
+                                    <td>${t.student_name}</td>
+                                    <td>${t.service_name}</td>
+                                    <td><span class="badge badge-completed">COMPLETED</span></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+        })
+        .catch(() => {
+            if (content) content.innerHTML = '<div style="padding:16px; color:#ef4444;">Failed to load tokens.</div>';
+        });
+}
+
 
 function addService(e) {
     e.preventDefault();
