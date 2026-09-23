@@ -5,10 +5,12 @@ USE `campusflow`;
 -- 1. Users
 CREATE TABLE IF NOT EXISTS `users` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `full_name` VARCHAR(100) NOT NULL,
     `name` VARCHAR(100) NOT NULL,
     `email` VARCHAR(150) NOT NULL UNIQUE,
     `password` VARCHAR(255) NOT NULL,
-    `role` ENUM('student', 'staff', 'admin') NOT NULL DEFAULT 'student'
+    `role` ENUM('student', 'staff', 'admin') NOT NULL DEFAULT 'student',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 2. Services
@@ -44,8 +46,8 @@ INSERT INTO `services` (`id`, `name`, `prefix`, `average_time`, `status`) VALUES
 ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 
 -- Seed Users (Bcrypt hashes)
-INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`) VALUES
-(1, 'Admin Tarun', 'admin@campusflow.local', '$2y$12$vCjzd.xgRw.4E2jxqml09udXjWjsoqF9w7c3NDOEoMKmkEpvZvcsG', 'admin'),
-(2, 'Staff Officer', 'staff@campusflow.local', '$2y$12$n0DCDGcDMY29UlTLu9tbEeUPIxHedtn7Bueh5yAsQ96q9vHOl/GGu', 'staff'),
-(3, 'Student Tarun', 'student@campusflow.local', '$2y$12$yObZoX6XdWzeE6ByMdQdyOWfVIz4qZRhoPLcHztZ1GfWzEyVa37CS', 'student')
+INSERT INTO `users` (`id`, `full_name`, `name`, `email`, `password`, `role`) VALUES
+(1, 'Admin Tarun', 'Admin Tarun', 'admin@campusflow.local', '$2y$12$vCjzd.xgRw.4E2jxqml09udXjWjsoqF9w7c3NDOEoMKmkEpvZvcsG', 'admin'),
+(2, 'Staff Officer', 'Staff Officer', 'staff@campusflow.local', '$2y$12$n0DCDGcDMY29UlTLu9tbEeUPIxHedtn7Bueh5yAsQ96q9vHOl/GGu', 'staff'),
+(3, 'Student Tarun', 'Student Tarun', 'student@campusflow.local', '$2y$12$yObZoX6XdWzeE6ByMdQdyOWfVIz4qZRhoPLcHztZ1GfWzEyVa37CS', 'student')
 ON DUPLICATE KEY UPDATE `email` = VALUES(`email`);

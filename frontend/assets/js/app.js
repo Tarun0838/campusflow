@@ -11,7 +11,7 @@ function getApiUrl(endpoint) {
     return (isSub ? '../../../backend/api/' : '../../backend/api/') + endpoint;
 }
 
-// 1. AUTHENTICATION
+// 1. AUTHENTICATION & RBAC
 function handleLogin(e) {
     e.preventDefault();
     const email = document.getElementById('email').value.trim();
@@ -32,7 +32,7 @@ function handleLogin(e) {
         } else {
             alertBox.style.display = 'block';
             alertBox.className = 'alert alert-danger';
-            alertBox.textContent = data.error || 'Invalid email or password';
+            alertBox.textContent = data.error || 'Invalid email or password.';
         }
     })
     .catch(() => {
@@ -42,8 +42,68 @@ function handleLogin(e) {
     });
 }
 
+function handleRegister(e) {
+    e.preventDefault();
+    const fullName = document.getElementById('full_name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    const role = document.getElementById('role').value;
+    const alertBox = document.getElementById('alert');
+
+    function showError(msg) {
+        alertBox.style.display = 'block';
+        alertBox.className = 'alert alert-danger';
+        alertBox.textContent = msg;
+    }
+
+    if (!fullName) {
+        showError('Please enter your full name.');
+        return;
+    }
+    if (!email) {
+        showError('Please enter a valid email address.');
+        return;
+    }
+    if (!password) {
+        showError('Please enter a password.');
+        return;
+    }
+    if (password !== confirmPassword) {
+        showError('Passwords do not match.');
+        return;
+    }
+    if (role !== 'student' && role !== 'staff' && role !== 'admin') {
+        showError('Please select a valid role.');
+        return;
+    }
+
+    fetch(getApiUrl('auth.php?action=register'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            full_name: fullName,
+            email: email,
+            password: password,
+            confirm_password: confirmPassword,
+            role: role
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = 'login.html?registered=1';
+        } else {
+            showError(data.error || 'Registration failed.');
+        }
+    })
+    .catch(() => {
+        showError('Server connection failed');
+    });
+}
+
 function logout() {
-    fetch(getApiUrl('auth.php?action=logout')).then(() => {
+    fetch(getApiUrl('auth.php?action=logout')).finally(() => {
         const isSub = window.location.pathname.includes('/student/') || 
                       window.location.pathname.includes('/staff/') || 
                       window.location.pathname.includes('/admin/');
@@ -55,15 +115,36 @@ function checkUser(role) {
     fetch(getApiUrl('auth.php?action=check'))
         .then(r => r.json())
         .then(d => {
+            const isSub = window.location.pathname.includes('/student/') || 
+                          window.location.pathname.includes('/staff/') || 
+                          window.location.pathname.includes('/admin/');
+            const loginPath = isSub ? '../login.html' : 'login.html';
+
             if (!d.success || !d.user) {
-                const isSub = window.location.pathname.includes('/student/') || 
-                              window.location.pathname.includes('/staff/') || 
-                              window.location.pathname.includes('/admin/');
-                window.location.href = isSub ? '../login.html' : 'login.html';
+                window.location.href = loginPath;
                 return;
             }
+
+            // Role authorization guard
+            if (role && d.user.role !== role) {
+                if (d.user.role === 'admin') {
+                    window.location.href = isSub ? '../admin/dashboard.html' : 'admin/dashboard.html';
+                } else if (d.user.role === 'staff') {
+                    window.location.href = isSub ? '../staff/dashboard.html' : 'staff/dashboard.html';
+                } else {
+                    window.location.href = isSub ? '../student/dashboard.html' : 'student/dashboard.html';
+                }
+                return;
+            }
+
             const nameEl = document.getElementById('userName');
             if (nameEl) nameEl.textContent = d.user.name;
+        })
+        .catch(() => {
+            const isSub = window.location.pathname.includes('/student/') || 
+                          window.location.pathname.includes('/staff/') || 
+                          window.location.pathname.includes('/admin/');
+            window.location.href = isSub ? '../login.html' : 'login.html';
         });
 }
 
