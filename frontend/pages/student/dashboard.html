@@ -27,6 +27,32 @@
         <div class="card" style="color:#64748b;">Loading token...</div>
     </div>
 
+    <!-- Smart Journey: Multi-Service Route Planner -->
+    <div class="card" style="margin-bottom:28px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+            <div>
+                <h2 style="font-size:17px; font-weight:700; color:#0f172a;">🧭 Smart Journey</h2>
+                <p style="font-size:13px; color:#64748b; margin-top:2px;">Plan your campus tasks efficiently with automated queue and prerequisite routing</p>
+            </div>
+            <span class="badge" style="background:#e0e7ff; color:#3730a3;">Route Planner</span>
+        </div>
+
+        <div style="margin-bottom:14px;">
+            <label style="margin-bottom:8px;">Select services to visit today:</label>
+            <div id="journeyCheckboxes" class="grid grid-cols-3" style="gap:10px;">
+                <div style="color:#64748b; font-size:13px;">Loading available services...</div>
+            </div>
+        </div>
+
+        <div style="display:flex; gap:10px; align-items:center;">
+            <button type="button" class="btn btn-primary btn-sm" id="btnPlanJourney" onclick="planSmartJourney()">Plan My Journey</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="clearSmartJourney()">Clear Selection</button>
+        </div>
+
+        <!-- Journey Plan Result Container -->
+        <div id="journeyPlanResult" style="display:none; margin-top:20px; border-top:1px solid #e2e8f0; padding-top:16px;"></div>
+    </div>
+
     <!-- Available Services -->
     <h2 style="font-size:16px; margin-bottom:10px;">Available Services</h2>
     <div class="grid grid-cols-3" id="servicesList">

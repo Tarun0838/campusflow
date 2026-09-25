@@ -286,9 +286,7 @@ function loadStudentDashboard() {
             .then(r => r.json())
             .then(data => {
                 const list = document.getElementById('servicesList');
-                if (!list) return;
-
-                if (data.success && data.services) {
+                if (list && data.success && data.services) {
                     list.innerHTML = data.services.map(s => `
                         <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
                             <div>
@@ -303,8 +301,188 @@ function loadStudentDashboard() {
                         </div>
                     `).join('');
                 }
+
+                // Populate Smart Journey checkboxes
+                const jbox = document.getElementById('journeyCheckboxes');
+                if (jbox && data.success && data.services) {
+                    if (data.services.length === 0) {
+                        jbox.innerHTML = `<div style="color:#64748b; font-size:13px;">No active services available today.</div>`;
+                    } else {
+                        jbox.innerHTML = data.services.map(s => `
+                            <label class="journey-checkbox-label">
+                                <input type="checkbox" name="journey_services" value="${s.id}" data-name="${s.name}">
+                                <div style="flex:1;">
+                                    <div style="font-weight:600; font-size:13px; color:#1e293b;">${s.name}</div>
+                                    <div style="font-size:11px; color:#64748b;">Queue: ${s.waiting_count} &bull; ~${s.average_time} min/person</div>
+                                </div>
+                            </label>
+                        `).join('');
+                    }
+                }
             });
     });
+}
+
+// Smart Journey Planning Workflow
+function planSmartJourney() {
+    const checkboxes = document.querySelectorAll('input[name="journey_services"]:checked');
+    const serviceIds = Array.from(checkboxes).map(cb => parseInt(cb.value, 10));
+    const resultBox = document.getElementById('journeyPlanResult');
+    const alertBox = document.getElementById('alert');
+
+    if (alertBox) alertBox.style.display = 'none';
+
+    if (serviceIds.length === 0) {
+        if (alertBox) {
+            alertBox.style.display = 'block';
+            alertBox.className = 'alert alert-warning';
+            alertBox.textContent = 'Please select at least one campus service to plan your journey.';
+        } else {
+            alert('Please select at least one campus service.');
+        }
+        return;
+    }
+
+    const btn = document.getElementById('btnPlanJourney');
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Planning Route...';
+    }
+
+    fetch(getApiUrl('journey.php?action=plan'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ service_ids: serviceIds })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Plan My Journey';
+        }
+
+        if (!data.success) {
+            if (alertBox) {
+                alertBox.style.display = 'block';
+                alertBox.className = 'alert alert-danger';
+                alertBox.textContent = data.error || 'Failed to calculate journey route.';
+            }
+            return;
+        }
+
+        renderJourneyResult(data);
+    })
+    .catch(() => {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Plan My Journey';
+        }
+        if (alertBox) {
+            alertBox.style.display = 'block';
+            alertBox.className = 'alert alert-danger';
+            alertBox.textContent = 'Server connection failed while planning journey.';
+        }
+    });
+}
+
+function renderJourneyResult(data) {
+    const resultBox = document.getElementById('journeyPlanResult');
+    if (!resultBox) return;
+
+    const firstStep = data.journey && data.journey.length > 0 ? data.journey[0] : null;
+
+    resultBox.style.display = 'block';
+    resultBox.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+            <h3 style="font-size:15px; font-weight:700; color:#0f172a;">Recommended Journey Route</h3>
+            <span class="badge" style="background:#f1f5f9; color:#475569;">${data.selected_count} Services</span>
+        </div>
+
+        <div style="margin-bottom:16px;">
+            ${data.journey.map(step => `
+                <div class="journey-step">
+                    <div class="journey-step-num">${step.step}</div>
+                    <div style="flex:1;">
+                        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:2px;">
+                            <strong style="font-size:14px; color:#0f172a;">${step.name} (${step.prefix})</strong>
+                            <span style="font-size:12px; color:#2563eb; font-weight:700;">Est. Wait: ${step.estimated_wait} min</span>
+                        </div>
+                        <div style="font-size:12px; color:#64748b; margin-bottom:6px;">
+                            Queue Ahead: <strong>${step.waiting_count}</strong> students &bull; Average Service: ${step.average_time} min
+                        </div>
+                        <div style="font-size:11px; color:#047857; background:#ecfdf5; border-radius:4px; padding:3px 8px; display:inline-block;">
+                            💡 ${step.recommendation_reason}
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:14px 18px; margin-bottom:16px;">
+            <div>
+                <div style="font-size:11px; color:#64748b; text-transform:uppercase; font-weight:700; letter-spacing:0.5px;">Estimated Total Waiting Time</div>
+                <div style="font-size:24px; font-weight:800; color:#2563eb;">${data.total_estimated_wait} min</div>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-size:11px; color:#64748b; font-weight:600;">Total Duration (Wait + Service)</div>
+                <div style="font-size:16px; font-weight:700; color:#334155;">~${data.total_estimated_duration} min</div>
+            </div>
+        </div>
+
+        ${firstStep ? `
+            <div style="display:flex; gap:10px; align-items:center;">
+                <button type="button" class="btn btn-primary" onclick="startSmartJourney(${firstStep.id})">
+                    Start Journey (Get Token for ${firstStep.name}) &rarr;
+                </button>
+            </div>
+        ` : ''}
+    `;
+
+    resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function startSmartJourney(serviceId) {
+    const alertBox = document.getElementById('alert');
+    if (alertBox) alertBox.style.display = 'none';
+
+    fetch(getApiUrl('journey.php?action=start'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ service_id: serviceId })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success && data.token_id) {
+            window.location.href = `token.html?id=${data.token_id}`;
+        } else {
+            if (alertBox) {
+                alertBox.style.display = 'block';
+                alertBox.className = 'alert alert-warning';
+                alertBox.textContent = data.error || 'Could not start journey';
+            } else {
+                alert(data.error);
+            }
+        }
+    })
+    .catch(() => {
+        if (alertBox) {
+            alertBox.style.display = 'block';
+            alertBox.className = 'alert alert-danger';
+            alertBox.textContent = 'Server connection failed while starting journey';
+        }
+    });
+}
+
+function clearSmartJourney() {
+    const checkboxes = document.querySelectorAll('input[name="journey_services"]');
+    checkboxes.forEach(cb => { cb.checked = false; });
+    const resultBox = document.getElementById('journeyPlanResult');
+    if (resultBox) {
+        resultBox.style.display = 'none';
+        resultBox.innerHTML = '';
+    }
+    const alertBox = document.getElementById('alert');
+    if (alertBox) alertBox.style.display = 'none';
 }
 
 function generateToken(serviceId) {
@@ -546,8 +724,136 @@ function loadAdminDashboard() {
                 if (currentAdminTokenType) {
                     showAdminTokenList(currentAdminTokenType, false);
                 }
+
+                // Load operational intelligence widgets
+                loadAdminIntelligence();
             });
     });
+}
+
+function loadAdminIntelligence() {
+    fetch(getApiUrl('analytics.php?action=intelligence'))
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) return;
+
+            // 1. Bottleneck Detection
+            const bBadge = document.getElementById('bottleneckBadge');
+            const bList = document.getElementById('bottleneckList');
+            if (data.bottlenecks) {
+                const b = data.bottlenecks;
+                if (bBadge) {
+                    if (b.counts.high > 0) {
+                        bBadge.className = 'badge badge-high';
+                        bBadge.textContent = `${b.counts.high} High Congestion`;
+                    } else if (b.counts.moderate > 0) {
+                        bBadge.className = 'badge badge-moderate';
+                        bBadge.textContent = `${b.counts.moderate} Moderate`;
+                    } else {
+                        bBadge.className = 'badge badge-normal';
+                        bBadge.textContent = 'All Normal';
+                    }
+                }
+
+                if (bList && b.services) {
+                    if (b.services.length === 0) {
+                        bList.innerHTML = `<div style="color:#64748b; font-size:13px; padding:8px 0;">No active services detected.</div>`;
+                    } else {
+                        bList.innerHTML = b.services.map(s => {
+                            let badgeClass = 'badge-normal';
+                            let badgeText = 'NORMAL';
+                            if (s.level === 'high') {
+                                badgeClass = 'badge-high';
+                                badgeText = 'HIGH';
+                            } else if (s.level === 'moderate') {
+                                badgeClass = 'badge-moderate';
+                                badgeText = 'MODERATE';
+                            }
+                            return `
+                                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #f1f5f9;">
+                                    <div>
+                                        <div style="font-weight:600; font-size:13px; color:#1e293b;">${s.service_name} (${s.prefix})</div>
+                                        <div style="font-size:11px; color:#64748b;">Queue: <strong>${s.queue}</strong> &bull; Avg Wait: ${s.average_time} min</div>
+                                    </div>
+                                    <span class="badge ${badgeClass}" style="font-size:10px;">${badgeText}</span>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                }
+            }
+
+            // 2. Campus Demand Prediction
+            const dContent = document.getElementById('demandContent');
+            if (dContent && data.demand_prediction) {
+                const dp = data.demand_prediction;
+                if (!dp.has_sufficient_data) {
+                    dContent.innerHTML = `
+                        <div style="padding:16px 0; color:#64748b; font-size:13px; text-align:center;">
+                            ${dp.message || 'Not enough historical data for demand prediction.'}
+                        </div>
+                    `;
+                } else {
+                    const barsHtml = dp.hourly_distribution.map(h => `
+                        <div class="demand-row">
+                            <span class="demand-label">${h.label}</span>
+                            <div class="demand-bar-bg" title="${h.token_count} tokens generated">
+                                <div class="demand-bar-fill ${h.is_peak ? 'peak' : ''}" style="width: ${Math.max(4, h.percentage)}%;"></div>
+                            </div>
+                            <span class="demand-count">${h.token_count}</span>
+                        </div>
+                    `).join('');
+
+                    dContent.innerHTML = `
+                        <div style="margin-bottom:12px;">${barsHtml}</div>
+                        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:10px 12px; font-size:12px;">
+                            <div style="margin-bottom:4px;">
+                                <span style="color:#64748b;">Expected Peak:</span> <strong>${dp.peak_window}</strong>
+                            </div>
+                            <div>
+                                <span style="color:#64748b;">Most Demanded Service:</span> <strong>${dp.most_demanded_service}</strong>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            // 3. Smart Counter Allocation
+            const cBadge = document.getElementById('counterStatusBadge');
+            const cContent = document.getElementById('counterRecommendationContent');
+            if (data.counter_allocation) {
+                const ca = data.counter_allocation;
+                if (cBadge) {
+                    if (ca.status === 'rebalance_suggested') {
+                        cBadge.className = 'badge badge-moderate';
+                        cBadge.textContent = 'Action Suggested';
+                    } else if (ca.status === 'capacity_alert') {
+                        cBadge.className = 'badge badge-high';
+                        cBadge.textContent = 'Capacity Alert';
+                    } else {
+                        cBadge.className = 'badge badge-normal';
+                        cBadge.textContent = 'Balanced';
+                    }
+                }
+
+                if (cContent) {
+                    cContent.innerHTML = `
+                        <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:6px; padding:12px; margin-bottom:10px;">
+                            <div style="font-weight:700; font-size:13px; color:#1e293b; margin-bottom:6px;">
+                                ${ca.status === 'rebalance_suggested' ? 'Suggested Action:' : 'Status:'}
+                            </div>
+                            <div style="font-size:13px; color:#334155; line-height:1.4;">
+                                ${ca.action}
+                            </div>
+                        </div>
+                        <div style="font-size:12px; color:#64748b; line-height:1.4;">
+                            <strong>Reason:</strong> ${ca.reason}
+                        </div>
+                    `;
+                }
+            }
+        })
+        .catch(() => {});
 }
 
 function toggleAdminTokenList(type) {

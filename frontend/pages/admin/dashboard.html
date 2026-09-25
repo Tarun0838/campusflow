@@ -55,6 +55,59 @@
         </div>
     </div>
 
+    <!-- CampusFlow Intelligence -->
+    <div class="card" style="margin-bottom:24px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; border-bottom:1px solid #e2e8f0; padding-bottom:12px;">
+            <div>
+                <h2 style="font-size:17px; font-weight:700; color:#0f172a;">📊 CampusFlow Intelligence</h2>
+                <p style="font-size:13px; color:#64748b; margin-top:2px;">Data-driven operational intelligence: bottleneck detection, demand patterns, and counter optimization</p>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="loadAdminIntelligence()">Refresh Insights</button>
+        </div>
+
+        <div class="grid grid-cols-3" style="gap:16px;">
+            <!-- Widget 1: Bottleneck Detection -->
+            <div style="border:1px solid #e2e8f0; border-radius:6px; padding:16px; background:#fafafa;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <h3 style="font-size:14px; font-weight:700; color:#1e293b;">Bottlenecks</h3>
+                    <span id="bottleneckBadge" class="badge badge-completed">0 High</span>
+                </div>
+                <p style="font-size:11px; color:#64748b; margin-bottom:12px;">Rule-based thresholds: Normal (≤5), Moderate (6-10), High (&gt;10)</p>
+                <div id="bottleneckList" style="max-height:240px; overflow-y:auto;">
+                    <div style="color:#64748b; font-size:13px;">Analyzing queues...</div>
+                </div>
+            </div>
+
+            <!-- Widget 2: Campus Rush / Demand Prediction -->
+            <div style="border:1px solid #e2e8f0; border-radius:6px; padding:16px; background:#fafafa;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <h3 style="font-size:14px; font-weight:700; color:#1e293b;">Campus Demand</h3>
+                    <span class="badge" style="background:#e0e7ff; color:#3730a3;">Hourly</span>
+                </div>
+                <div id="demandContent">
+                    <div style="color:#64748b; font-size:13px;">Loading demand patterns...</div>
+                </div>
+            </div>
+
+            <!-- Widget 3: Smart Counter Allocation -->
+            <div style="border:1px solid #e2e8f0; border-radius:6px; padding:16px; background:#fafafa; display:flex; flex-direction:column; justify-content:space-between;">
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <h3 style="font-size:14px; font-weight:700; color:#1e293b;">Smart Counter Allocation</h3>
+                        <span id="counterStatusBadge" class="badge badge-completed">Balanced</span>
+                    </div>
+                    <p style="font-size:11px; color:#64748b; margin-bottom:12px;">Advisory recommendation based on cross-service queue disparity</p>
+                    <div id="counterRecommendationContent">
+                        <div style="color:#64748b; font-size:13px;">Evaluating counter loads...</div>
+                    </div>
+                </div>
+                <div style="font-size:11px; color:#94a3b8; border-top:1px solid #e2e8f0; padding-top:8px; margin-top:12px;">
+                    ℹ️ Advisory only. Administrator confirms staff reallocations.
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Manage Services -->
     <div class="grid grid-cols-3">
         <!-- Add Service Form -->

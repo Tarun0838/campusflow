@@ -226,10 +226,10 @@ if ($action === 'complete') {
     checkUser('staff');
     $tokenId = (int)($input['token_id'] ?? 0);
     if ($tokenId > 0) {
-        $upd = $pdo->prepare("UPDATE tokens SET status = 'completed' WHERE id = ? AND status IN ('called', 'processing')");
+        $upd = $pdo->prepare("UPDATE tokens SET status = 'completed', completed_at = CURRENT_TIMESTAMP WHERE id = ? AND status IN ('called', 'processing')");
         $upd->execute([$tokenId]);
     } else {
-        $upd = $pdo->query("UPDATE tokens SET status = 'completed' WHERE status IN ('called', 'processing') ORDER BY id DESC LIMIT 1");
+        $upd = $pdo->query("UPDATE tokens SET status = 'completed', completed_at = CURRENT_TIMESTAMP WHERE status IN ('called', 'processing') ORDER BY id DESC LIMIT 1");
     }
     echo json_encode(['success' => true]);
     exit();
